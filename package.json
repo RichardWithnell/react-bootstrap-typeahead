@@ -7,7 +7,7 @@
     "example": "example"
   },
   "scripts": {
-    "prepare": "npm run buuld",
+    "prepare": "npm run build",
     "build": "./scripts/build.sh",
     "example": "./scripts/buildExample.sh",
     "lint": "eslint .",
