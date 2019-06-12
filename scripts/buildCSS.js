@@ -6,13 +6,13 @@ const path = require('path');
 const sass = require('node-sass');
 
 const ROOT = path.join(__dirname, '..');
-const OUT_DIR = 'css';
-const STYLES_DIR = 'styles';
+const OUT_DIR = path.join(ROOT, 'css');
+const STYLES_DIR = path.join(ROOT, 'styles');
 
 function buildCSS(options) {
   // Get the base filename.
   let filename = options.file
-    .split('/')
+    .split(path.sep)
     .pop()
     .replace('.scss', '');
 
@@ -28,7 +28,7 @@ function buildCSS(options) {
       process.exit(1);
     }
 
-    fs.writeFileSync(path.join(ROOT, OUT_DIR, `${options.filename}.css`), result.css);
+    fs.writeFileSync(path.join(OUT_DIR, `${filename}.css`), result.css);
   });
 }
 
@@ -39,10 +39,9 @@ if (!fs.existsSync(OUT_DIR)) {
 
 fs.readdirSync(STYLES_DIR).forEach((filename) => {
   // Output both expanded and minified versions.
-  ['expanded'].forEach((outputStyle) => {
+  ['compressed', 'expanded'].forEach((outputStyle) => {
     buildCSS({
       file: path.join(STYLES_DIR, filename),
-      filename,
       outputStyle,
     });
   });
