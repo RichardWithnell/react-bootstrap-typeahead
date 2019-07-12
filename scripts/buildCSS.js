@@ -1,18 +1,13 @@
 #!/usr/bin/env node
-/* eslint-disable import/no-extraneous-dependencies,no-console */
 
 const fs = require('fs');
 const path = require('path');
 const sass = require('node-sass');
 
-const ROOT = path.join(__dirname, '..');
-const OUT_DIR = path.join(ROOT, 'css');
-const STYLES_DIR = path.join(ROOT, 'styles');
-
-function buildCSS(options) {
+function buildCSS(options, outdir) {
   // Get the base filename.
   let filename = options.file
-    .split(path.sep)
+    .split('/')
     .pop()
     .replace('.scss', '');
 
@@ -28,21 +23,28 @@ function buildCSS(options) {
       process.exit(1);
     }
 
-    fs.writeFileSync(path.join(OUT_DIR, `${filename}.css`), result.css);
+    fs.writeFileSync(path.join(outdir, `${filename}.css`), result.css);
   });
 }
 
-// Create the output directory if it doesn't exist.
-if (!fs.existsSync(OUT_DIR)) {
-  fs.mkdirSync(OUT_DIR);
+const rootDir = path.join(__dirname, '..');
+
+// Create the output directory if it doesn't already exist
+const outdir = path.join(rootDir, 'css');
+if (!fs.existsSync(outdir)) {
+  fs.mkdirSync(outdir);
 }
 
-fs.readdirSync(STYLES_DIR).forEach((filename) => {
+const sassFiles = fs.readdirSync(path.join(rootDir, 'scss'));
+sassFiles.forEach((filename) => {
+  if (filename.indexOf('Typeahead') === -1) {
+    return;
+  }
+
+  const file = path.join(rootDir, 'scss', filename);
+
   // Output both expanded and minified versions.
-  ['compressed', 'expanded'].forEach((outputStyle) => {
-    buildCSS({
-      file: path.join(STYLES_DIR, filename),
-      outputStyle,
-    });
+  ['compressed', 'expanded'].forEach(outputStyle => {
+    buildCSS({file, outputStyle}, outdir);
   });
 });
